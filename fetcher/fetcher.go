@@ -10,16 +10,52 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 )
+
+var limiter = time.NewTicker(200 * time.Millisecond)
 
 //页面信息拉取
 func Fetch(url string) (*goquery.Document, error) {
+	//<-limiter.C
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Printf("wrong status code:%d", err)
 	}
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.103 Safari/537.36")
+
+	req.AddCookie(&http.Cookie{
+		Name:   "AST",
+		Value:  "15871900530807ef3dba95c",
+		Path:   "/",
+		Domain: ".zongheng.com",
+		MaxAge: 2000,
+	})
+	req.AddCookie(&http.Cookie{
+		Name:   "v_user",
+		Value:  "%7Chttp%3A%2F%2Fbook.zongheng.com%2Fstore%2Fc1%2Fc0%2Fb0%2Fu0%2Fp1%2Fv9%2Fs9%2Ft0%2Fu0%2Fi1%2FALL.html%7C20021342",
+		Path:   "/",
+		Domain: ".zongheng.com",
+	})
+	req.AddCookie(&http.Cookie{
+		Name:   "ver",
+		Value:  "2018",
+		Path:   "/",
+		Domain: ".zongheng.com",
+	})
+	req.AddCookie(&http.Cookie{
+		Name:   "PassportCaptchaId",
+		Value:  "b8efb2b37f9fd11d72b3a6e903c98fa3",
+		Path:   "/",
+		Domain: ".zongheng.com",
+	})
+	req.AddCookie(&http.Cookie{
+		Name:   "ZHID",
+		Value:  "F0F278E1774045C56A2ED70A002A21E6",
+		Path:   "/",
+		Domain: ".zongheng.com",
+	})
 
 	resp, err := client.Do(req)
 	if err != nil {

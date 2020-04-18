@@ -2,6 +2,7 @@ package scheduler
 
 import "spider/engine"
 
+//所有worker共用一个输入
 type SimpleScheduler struct {
 	workerChan chan engine.Request
 }
