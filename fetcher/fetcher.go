@@ -27,7 +27,7 @@ func Fetch(url string) (*goquery.Document, error) {
 
 	req.AddCookie(&http.Cookie{
 		Name:   "AST",
-		Value:  "15871900530807ef3dba95c",
+		Value:  "15873666657876ecb2312f7",
 		Path:   "/",
 		Domain: ".zongheng.com",
 		MaxAge: 2000,
@@ -66,7 +66,11 @@ func Fetch(url string) (*goquery.Document, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("wrong status code:%d", resp.StatusCode)
 	}
-	return goquery.NewDocumentFromReader(resp.Body)
+
+	content, err := goquery.NewDocumentFromReader(resp.Body)
+	content.Url = resp.Request.URL
+	return content, err
+
 }
 
 //识别是什么编码的网页

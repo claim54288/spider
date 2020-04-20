@@ -1,34 +1,54 @@
 package persist
 
 import (
+	"context"
+	"errors"
 	"fmt"
+	"gopkg.in/olivere/elastic.v5"
 	"log"
 	"os"
+	"spider/engine"
 	"spider/model"
 	"strings"
 )
 
 //存储
-func ItemSaver() chan interface{} {
-	out := make(chan interface{})
+func ItemSaver(index string) (chan engine.Item, error) {
+	client, err := elastic.NewClient(
+		elastic.SetURL("http://192.168.159.131:9200"),
+		elastic.SetSniff(false), //维护集群状态
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	out := make(chan engine.Item)
 	go func() {
 		itemCount := 0
 		for {
 			item := <-out
 
 			itemCount++
-			switch itemJudged := item.(type) {
+			switch itemJudged := item.Payload.(type) {
 			case model.Novel:
+
 				if itemJudged.Title != "" {
-					saveNovelToTxt(itemJudged)
-					log.Printf("Novel: %s Chapter: %s saved! ", itemJudged.Name, itemJudged.Title)
+					//saveNovelToTxt(itemJudged)
+					//log.Printf("Novel: %s Chapter: %s saved! ", itemJudged.Name, itemJudged.Title)
+					//if err != nil {
+					//	log.Printf("Item Saver:error saving item %v:%v", item, err)
+					//}
 				} else {
+					err := saveToElastic(client, index, item)
+					if err != nil {
+						log.Printf("Item Saver:error saving item %v:%v", item, err)
+					}
 					log.Printf("Item Saver :got item "+"#%d : %+v", itemCount, item)
 				}
 			}
 		}
 	}()
-	return out
+	return out, nil
 }
 
 func saveNovelToTxt(m model.Novel) {
@@ -49,4 +69,16 @@ func saveNovelToTxt(m model.Novel) {
 	content = strings.ReplaceAll(content, "<p>", "")
 	content = strings.ReplaceAll(content, "</p>", "\n")
 	file.WriteString(content)
+}
+
+func saveToElastic(client *elastic.Client, index string, item engine.Item) error {
+	if item.Type == "" {
+		return errors.New("must supply Type")
+	}
+	indexService := client.Index().Index(index).Type(item.Type)
+	if item.Id != "" {
+		indexService.Id(item.Id)
+	}
+	_, err := indexService.BodyJson(item).Do(context.Background())
+	return err
 }

@@ -17,7 +17,12 @@ func ParseCatalog(contents *goquery.Document) engine.ParseResult {
 			Url:        href,
 			ParserFunc: ParseNovelHomePage,
 		})
-		result.Items = append(result.Items, selection.Text())
+		result.Items = append(result.Items, engine.Item{
+			Url:     "",
+			Type:    "",
+			Id:      "",
+			Payload: selection.Text(),
+		})
 	})
 	return result
 }

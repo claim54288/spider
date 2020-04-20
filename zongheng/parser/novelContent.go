@@ -4,6 +4,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"spider/engine"
 	"spider/model"
+	"strconv"
 	"strings"
 )
 
@@ -13,7 +14,12 @@ func ParseNovelContent(contents *goquery.Document, novel model.Novel) engine.Par
 	novel.Contents, _ = contents.Find(".content").Html()
 
 	result := engine.ParseResult{}
-	result.Items = append(result.Items, novel)
+	result.Items = append(result.Items, engine.Item{
+		Url:     contents.Url.String(),
+		Type:    "zongheng",
+		Id:      strconv.Itoa(novel.BookId),
+		Payload: novel,
+	})
 	href, _ := contents.Find(".chap_btnbox>a").Last().Attr("href")
 	if strings.HasPrefix(href, "http") {
 		result.Requests = append(result.Requests, engine.Request{

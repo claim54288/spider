@@ -4,7 +4,14 @@ import "github.com/PuerkitoBio/goquery"
 
 type ParseResult struct {
 	Requests []Request
-	Items    []interface{}
+	Items    []Item
+}
+
+type Item struct {
+	Url     string
+	Type    string
+	Id      string
+	Payload interface{}
 }
 
 type Request struct {

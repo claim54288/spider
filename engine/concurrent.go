@@ -1,17 +1,15 @@
 package engine
 
 import (
-	"fmt"
 	goredis "github.com/garyburd/redigo/redis"
 	"log"
-	"strings"
 	"time"
 )
 
 type ConcurrentEngine struct {
 	Scheduler   Scheduler
 	WorkerCount int
-	ItemChan    chan interface{}
+	ItemChan    chan Item
 }
 
 type Scheduler interface {
@@ -35,21 +33,21 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 	}
 	defer redisDB.Close()
 	for _, r := range seeds {
-		old := "p1"
-		for i := 2; i < 52; i++ {
-			target := fmt.Sprintf("p%d", i)
-			r.Url = strings.ReplaceAll(r.Url, old, target)
-			old = target
-			if isDuplicateByRedis(r.Url) {
-				continue
-			}
-			e.Scheduler.Submit(r)
-		}
-
-		//if isDuplicate(r.Url) {
-		//	continue
+		//old := "p1"
+		//for i := 2; i < 999; i++ {
+		//	target := fmt.Sprintf("p%d", i)
+		//	r.Url = strings.ReplaceAll(r.Url, old, target)
+		//	old = target
+		//	if isDuplicate(r.Url) {
+		//		continue
+		//	}
+		//	e.Scheduler.Submit(r)
 		//}
-		//e.Scheduler.Submit(r)
+
+		if isDuplicate(r.Url) {
+			continue
+		}
+		e.Scheduler.Submit(r)
 	}
 
 	for {
@@ -60,7 +58,7 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 		}
 
 		for _, request := range result.Requests {
-			if isDuplicateByRedis(request.Url) {
+			if isDuplicate(request.Url) {
 				continue
 			}
 			e.Scheduler.Submit(request)

@@ -2,7 +2,6 @@ package fetcher
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
 	"log"
 	"net/http"
 	"testing"
@@ -53,12 +52,13 @@ func TestFetch(t *testing.T) {
 	}
 	defer resp.Body.Close()
 
-	document, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		panic(err)
-	}
+	fmt.Println(resp.Request.URL.String())
+	//document, err := goquery.NewDocumentFromReader(resp.Body)
+	//if err != nil {
+	//	panic(err)
+	//}
 	//document.Find(".nums>span").Filter("i").Each(func(i int, selection *goquery.Selection) {
-	fmt.Println(document.Html())
+	//fmt.Println(document.Html())
 	//})
 
 }

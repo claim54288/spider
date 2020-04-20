@@ -3,6 +3,7 @@ package parser
 import (
 	"github.com/PuerkitoBio/goquery"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/shopspring/decimal"
 	"spider/engine"
 	"spider/model"
 	"strconv"
@@ -29,25 +30,44 @@ func ParseNovelHomePage(contents *goquery.Document) engine.ParseResult {
 	selection.Find(".nums>span>i").Each(func(i int, s *goquery.Selection) {
 		switch i {
 		case 0:
-			novel.LetterNum = s.Text()
+			novel.LetterNum = numHandle(s.Text())
 		case 1:
-			num, _ := strconv.Atoi(s.Text())
-			novel.RecommendedTotally = num
+			//num, _ := strconv.Atoi(s.Text())
+			novel.RecommendedTotally = numHandle(s.Text())
 		case 2:
-			num, _ := strconv.Atoi(s.Text())
-			novel.Clicked = num
+			//num, _ := strconv.Atoi(s.Text())
+			novel.Clicked = numHandle(s.Text())
 		case 3:
-			num, _ := strconv.Atoi(s.Text())
-			novel.RecommendedWeekly = num
+			//num, _ := strconv.Atoi(s.Text())
+			novel.RecommendedWeekly = numHandle(s.Text())
 		}
 	})
-	result.Items = append(result.Items, novel)
-
-	result.Requests = append(result.Requests, engine.Request{
-		Url: href,
-		ParserFunc: func(document *goquery.Document) engine.ParseResult {
-			return ParseNovelContent(document, novel)
-		},
+	result.Items = append(result.Items, engine.Item{
+		Url:     contents.Url.String(),
+		Type:    "zongheng",
+		Id:      strconv.Itoa(novel.BookId),
+		Payload: novel,
 	})
+
+	//result.Requests = append(result.Requests, engine.Request{
+	//	Url:        href,
+	//	ParserFunc: engine.NilParser,
+	//	//ParserFunc: func(document *goquery.Document) engine.ParseResult {
+	//	//	return ParseNovelContent(document, novel)
+	//	//},
+	//})
 	return result
+}
+
+func numHandle(s string) int64 {
+	s = strings.TrimSpace(s)
+	if strings.HasSuffix(s, "万") {
+		s = strings.TrimSuffix(s, "万")
+		f, _ := decimal.NewFromString(s)
+		mul := f.Mul(decimal.New(10000, 0))
+		return mul.IntPart()
+	} else {
+		f, _ := decimal.NewFromString(s)
+		return f.IntPart()
+	}
 }
