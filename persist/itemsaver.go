@@ -43,8 +43,17 @@ func ItemSaver(index string) (chan engine.Item, error) {
 					if err != nil {
 						log.Printf("Item Saver:error saving item %v:%v", item, err)
 					}
-					log.Printf("Item Saver :got item "+"#%d : %+v", itemCount, item)
+					log.Printf("Item Saver :got item #%d : %+v", itemCount, item)
 				}
+			case model.Student:
+				err := saveToElastic(client, index, item)
+				if err != nil {
+					log.Printf("Item Saver:error saving item %v:%v", item, err)
+				} else {
+					log.Printf("Item Saver:item %v saved", item)
+				}
+			default:
+				log.Printf("Item Saver :got item #%d : %+v", itemCount, item)
 			}
 		}
 	}()

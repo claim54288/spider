@@ -54,7 +54,8 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 		result := <-out
 		for _, item := range result.Items {
 			//返回结果处理
-			go func() { e.ItemChan <- item }()
+			_item := item
+			go func() { e.ItemChan <- _item }()
 		}
 
 		for _, request := range result.Requests {
@@ -109,7 +110,7 @@ func init() {
 func createWorker(in chan Request, out chan ParseResult, s ReadyNotifier) {
 	go func() {
 		for {
-			//告诉调度器，准备好了,把自己准备接受request的chan丢给调度器
+			//告诉调度器，准备好了,把自己准备接收request的chan丢给调度器
 			s.WorkerReady(in)
 			//准备好了之后就在这边等待任务获得
 			request := <-in

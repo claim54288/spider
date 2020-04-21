@@ -5,7 +5,7 @@ import (
 	"spider/engine"
 	"spider/persist"
 	"spider/scheduler"
-	"spider/zongheng/parser"
+	"spider/webs/zongheng/parser"
 )
 
 func main() {
@@ -28,5 +28,14 @@ func main() {
 	//e.Run(engine.Request{
 	//	Url:        "http://book.zongheng.com/book/903377.html",
 	//	ParserFunc: parser.ParseNovelHomePage,
+	//})
+
+	//e.Run(engine.Request{
+	//	Url:        "http://test.b.kai12.cn/archives/archives?grade_id=101&class_id=13",
+	//	ParserFunc: parser.ParseStudentList,
+	//})
+	//e.Run(engine.Request{
+	//	Url:        "http://test.b.kai12.cn/archives/archives/student?student_id=258&student_edit=1",
+	//	ParserFunc: parser.ParseStudentHomePage,
 	//})
 }
