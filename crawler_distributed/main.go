@@ -1,7 +1,7 @@
 package main
 
 import (
-	"os"
+	"spider/crawler_distributed/config"
 	"spider/crawler_distributed/persist/client"
 	"spider/engine"
 	"spider/scheduler"
@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	itemChan, err := client.ItemSaver(":1234") //数据存储,分布式，存储器使用rpc来让远程服务器进行存储
+	itemChan, err := client.ItemSaver(config.ItemSaverPort) //数据存储,分布式，存储器使用rpc来让远程服务器进行存储
 	//itemChan, err := persist.ItemSaver("dating_student") //数据存储
 	if err != nil {
 		panic(err)
@@ -19,7 +19,7 @@ func main() {
 		WorkerCount: 50,
 		ItemChan:    itemChan,
 	}
-	os.Mkdir("books", 777)
+	//os.Mkdir("books", 777) //小说内容存储目录，不看，不存了
 	e.Run(engine.Request{
 		Url:        "http://book.zongheng.com/store/c0/c0/b0/u0/p1/v9/s9/t0/u0/i1/ALL.html",
 		ParserFunc: parser.ParseCatalog,
