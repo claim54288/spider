@@ -39,14 +39,14 @@ func ItemSaver(index string) (chan engine.Item, error) {
 					//	log.Printf("Item Saver:error saving item %v:%v", item, err)
 					//}
 				} else {
-					err := saveToElastic(client, index, item)
+					err := SaveToElastic(client, index, item)
 					if err != nil {
 						log.Printf("Item Saver:error saving item %v:%v", item, err)
 					}
 					log.Printf("Item Saver :got item #%d : %+v", itemCount, item)
 				}
 			case model.Student:
-				err := saveToElastic(client, index, item)
+				err := SaveToElastic(client, index, item)
 				if err != nil {
 					log.Printf("Item Saver:error saving item %v:%v", item, err)
 				} else {
@@ -80,14 +80,17 @@ func saveNovelToTxt(m model.Novel) {
 	file.WriteString(content)
 }
 
-func saveToElastic(client *elastic.Client, index string, item engine.Item) error {
+func SaveToElastic(client *elastic.Client, index string, item engine.Item) error {
 	if item.Type == "" {
 		return errors.New("must supply Type")
 	}
-	indexService := client.Index().Index(index).Type(item.Type)
-	if item.Id != "" {
-		indexService.Id(item.Id)
+	if item.Type == "zongheng" {
+		indexService := client.Index().Index(index).Type(item.Type)
+		if item.Id != "" {
+			indexService.Id(item.Id)
+		}
+		_, err := indexService.BodyJson(item).Do(context.Background())
+		return err
 	}
-	_, err := indexService.BodyJson(item).Do(context.Background())
-	return err
+	return nil
 }

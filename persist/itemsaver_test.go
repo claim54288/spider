@@ -20,7 +20,7 @@ package persist
 //			Contents:           "",
 //		},
 //	}
-//	err := saveToElastic(expected)
+//	err := SaveToElastic(expected)
 //	if err != nil {
 //		panic(err)
 //	}

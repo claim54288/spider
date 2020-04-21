@@ -19,7 +19,7 @@ func ParseCatalog(contents *goquery.Document) engine.ParseResult {
 		})
 		result.Items = append(result.Items, engine.Item{
 			Url:     "",
-			Type:    "",
+			Type:    "bookname",
 			Id:      "",
 			Payload: selection.Text(),
 		})
