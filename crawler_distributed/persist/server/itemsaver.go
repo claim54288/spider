@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"gopkg.in/olivere/elastic.v5"
 	"log"
 	"spider/crawler_distributed/config"
@@ -8,8 +10,15 @@ import (
 	"spider/crawler_distributed/rpcsupport"
 )
 
+var port = flag.Int("port", 0, "the port for me to listen on")
+
 func main() {
-	log.Fatal(serveRpc(config.ItemSaverPort, config.ElasticIndexNovel)) //log.Fatal得到值的话就是表示里面函数出错了，不然死循环出不来,出来了就直接状态1退出
+	flag.Parse()
+	if *port == 0 {
+		fmt.Println("必须指定监听端口")
+		return
+	}
+	log.Fatal(serveRpc(fmt.Sprintf(":%d", *port), config.ElasticIndexNovel)) //log.Fatal得到值的话就是表示里面函数出错了，不然死循环出不来,出来了就直接状态1退出
 }
 
 func serveRpc(host, index string) error {

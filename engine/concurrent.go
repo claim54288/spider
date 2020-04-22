@@ -7,10 +7,13 @@ import (
 )
 
 type ConcurrentEngine struct {
-	Scheduler   Scheduler
-	WorkerCount int
-	ItemChan    chan Item
+	Scheduler        Scheduler
+	WorkerCount      int
+	ItemChan         chan Item
+	RequestProcessor Processor
 }
+
+type Processor func(Request) (ParseResult, error)
 
 type Scheduler interface {
 	ReadyNotifier
@@ -29,7 +32,7 @@ func (e *ConcurrentEngine) Run(seeds ...Request) {
 
 	//启动worker，等待开始抓取和处理数据
 	for i := 0; i < e.WorkerCount; i++ {
-		createWorker(e.Scheduler.WorkerChan(), out, e.Scheduler)
+		e.createWorker(e.Scheduler.WorkerChan(), out, e.Scheduler)
 	}
 	defer redisDB.Close()
 	for _, r := range seeds {
@@ -107,14 +110,15 @@ func init() {
 	redisDB = conn
 }
 
-func createWorker(in chan Request, out chan ParseResult, s ReadyNotifier) {
+func (e *ConcurrentEngine) createWorker(in chan Request, out chan ParseResult, s ReadyNotifier) {
 	go func() {
 		for {
 			//告诉调度器，准备好了,把自己准备接收request的chan丢给调度器
 			s.WorkerReady(in)
 			//准备好了之后就在这边等待任务获得
 			request := <-in
-			result, err := worker(request)
+			//result, err := Worker(request) //改用rpc方式来分配worker任务
+			result, err := e.RequestProcessor(request)
 			if err != nil {
 				continue
 			}

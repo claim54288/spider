@@ -2,6 +2,7 @@ package parser
 
 import (
 	"github.com/PuerkitoBio/goquery"
+	"spider/crawler_distributed/config"
 	"spider/engine"
 	"strings"
 )
@@ -14,8 +15,8 @@ func ParseCatalog(contents *goquery.Document) engine.ParseResult {
 			return
 		}
 		result.Requests = append(result.Requests, engine.Request{
-			Url:        href,
-			ParserFunc: ParseNovelHomePage,
+			Url:    href,
+			Parser: engine.NewFuncParser(ParseNovelHomePage, config.ParseNovelHomePage),
 		})
 		result.Items = append(result.Items, engine.Item{
 			Url:     "",

@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"spider/crawler_distributed/config"
 	"spider/engine"
 	"spider/persist"
 	"spider/scheduler"
@@ -15,14 +16,15 @@ func main() {
 		panic(err)
 	}
 	e := engine.ConcurrentEngine{
-		Scheduler:   &scheduler.QueuedScheduler{},
-		WorkerCount: 50,
-		ItemChan:    itemChan,
+		Scheduler:        &scheduler.QueuedScheduler{},
+		WorkerCount:      50,
+		ItemChan:         itemChan,
+		RequestProcessor: engine.Worker,
 	}
 	os.Mkdir("books", 777)
 	e.Run(engine.Request{
-		Url:        "http://book.zongheng.com/store/c0/c0/b0/u0/p1/v9/s9/t0/u0/i1/ALL.html",
-		ParserFunc: parser.ParseCatalog,
+		Url:    "http://book.zongheng.com/store/c0/c0/b0/u0/p1/v9/s9/t0/u0/i1/ALL.html",
+		Parser: engine.NewFuncParser(parser.ParseCatalog, config.ParseCatalog),
 	})
 
 	//e.Run(engine.Request{

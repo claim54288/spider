@@ -32,13 +32,10 @@ func ParseNovelHomePage(contents *goquery.Document) engine.ParseResult {
 		case 0:
 			novel.LetterNum = numHandle(s.Text())
 		case 1:
-			//num, _ := strconv.Atoi(s.Text())
 			novel.RecommendedTotally = numHandle(s.Text())
 		case 2:
-			//num, _ := strconv.Atoi(s.Text())
 			novel.Clicked = numHandle(s.Text())
 		case 3:
-			//num, _ := strconv.Atoi(s.Text())
 			novel.RecommendedWeekly = numHandle(s.Text())
 		}
 	})
@@ -49,13 +46,10 @@ func ParseNovelHomePage(contents *goquery.Document) engine.ParseResult {
 		Payload: novel,
 	})
 
-	//result.Requests = append(result.Requests, engine.Request{
-	//	Url:        href,
-	//	ParserFunc: engine.NilParser,
-	//	//ParserFunc: func(document *goquery.Document) engine.ParseResult {
-	//	//	return ParseNovelContent(document, novel)
-	//	//},
-	//})
+	result.Requests = append(result.Requests, engine.Request{
+		Url:    href,
+		Parser: NewNovelContentParser(novel),
+	})
 	return result
 }
 
